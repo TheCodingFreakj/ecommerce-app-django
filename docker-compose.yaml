@@ -1,0 +1,98 @@
+version: '3.7'
+
+services:
+  user_service:
+    build:
+      context: ./user_service
+    ports:
+      - "8001:8000"
+    environment:
+      - DJANGO_SECRET_KEY=django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z(
+      - DJANGO_DEBUG=False
+      - DJANGO_SETTINGS_MODULE=user_service.settings
+      - DB_NAME=ecommerce-django
+      - DB_USER=pallavy
+      - DB_PASSWORD=pallavy
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_SCHEMA=user-schema
+
+  product_service:
+    build:
+      context: ./product_service
+    ports:
+      - "8002:8000"
+    environment:
+      - DJANGO_SECRET_KEY=django-insecure-4*m!s+ixe3-ab4py-_w@)tss=(qa*tj7zu^v0_#*f8nm=8ecc@
+      - DJANGO_DEBUG=False
+      - DJANGO_SETTINGS_MODULE=product_service.settings
+      - DB_NAME=ecommerce-django
+      - DB_USER=pallavy
+      - DB_PASSWORD=pallavy
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_SCHEMA=product-schema
+
+  order_service:
+    build:
+      context: ./order_service
+    ports:
+      - "8003:8000"
+    environment:
+      - DJANGO_SECRET_KEY=django-insecure-g#xb$c^#ii7dg)0c%42z&8a&jz7f@qga-$=-#$zt++$h@vo6mq
+      - DJANGO_DEBUG=False
+      - DJANGO_SETTINGS_MODULE=order_service.settings
+      - DB_NAME=ecommerce-django
+      - DB_USER=pallavy
+      - DB_PASSWORD=pallavy
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_SCHEMA=order-schema
+
+  payment_service:
+    build:
+      context: ./payment_service
+    ports:
+      - "8004:8000"
+    environment:
+      - DJANGO_SECRET_KEY=django-insecure-b6-bsh74e$01g%2-q%et&*o=0&8hsr%19#^l-sen-9#8v$74q8
+      - DJANGO_DEBUG=False
+      - DJANGO_SETTINGS_MODULE=payment_service.settings
+      - DB_NAME=ecommerce-django
+      - DB_USER=pallavy
+      - DB_PASSWORD=pallavy
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_SCHEMA=payment-schema
+
+  cart_service:
+    build:
+      context: ./cart_service
+    ports:
+      - "8005:8000"
+    environment:
+      - DJANGO_SECRET_KEY=django-insecure-qa1$x#by2$818@6br$*wzkwhr5emw-ibwha=^x@ozree3vvhns
+      - DJANGO_DEBUG=False
+      - DJANGO_SETTINGS_MODULE=cart_service.settings
+      - DB_NAME=ecommerce-django
+      - DB_USER=pallavy
+      - DB_PASSWORD=pallavy
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_SCHEMA=cart-schema
+
+  notification_service:
+    build:
+      context: ./notification_service
+    ports:
+      - "8006:8000"
+    environment:
+      - DJANGO_SECRET_KEY=django-insecure-zn-8pee#s67x)m*o_&a88(&2joqvh+9b$z)2d+j%mu$rxztk4c
+      - DJANGO_DEBUG=False
+      - DJANGO_SETTINGS_MODULE=notification_service.settings
+      - DB_NAME=ecommerce-django
+      - DB_USER=pallavy
+      - DB_PASSWORD=pallavy
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_SCHEMA=notification-schema
