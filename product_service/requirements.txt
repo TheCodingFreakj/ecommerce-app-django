@@ -1,2 +1,9 @@
 djangorestframework
 django-environ
+gunicorn
+psycopg2-binary
+djangorestframework-simplejwt
+python-dotenv
+django_celery_beat
+celery 
+redis

@@ -1,0 +1,4 @@
+
+python manage.py migrate users
+python manage.py makemigration users
+Using celery and redis to run the cron job 

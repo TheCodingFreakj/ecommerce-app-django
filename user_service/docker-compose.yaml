@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  user_service:
+    build:
+      context: .
+    ports:
+      - "8001:8000"
+      
+    environment:
+      DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
+      DJANGO_DEBUG: "True"
+      DB_NAME: "defaultdb"
+      DB_USER: "avnadmin"
+      DB_PASSWORD: "AVNS_YvmZwdl9kb18WKUmnHK"
+      DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
+      DB_PORT: "12783"
+      DB_SCHEMA: "user_schema"
