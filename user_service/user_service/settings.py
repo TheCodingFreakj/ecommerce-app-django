@@ -32,7 +32,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*', 'localhost','user-service-django-latest.onrender.com']
 
 
 # Application definition

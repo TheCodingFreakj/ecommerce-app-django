@@ -1,28 +1,29 @@
 version: '3.7'
 
 services:
-  user_service:
-    build:
-      context: ./user_service
-    ports:
-      - "8001:8000"
+  # user_service:
+  #   build:
+  #     context: ./user_service
+  #   ports:
+  #     - "8001:8001"
       
-    environment:
-      DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
-      DJANGO_DEBUG: "True"
-      DB_NAME: "defaultdb"
-      DB_USER: "avnadmin"
-      DB_PASSWORD: "AVNS_YvmZwdl9kb18WKUmnHK"
-      DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
-      DB_PORT: "12783"
-      DB_SCHEMA: "user_schema"
-
+  #   environment:
+  #     DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
+  #     DJANGO_DEBUG: "True"
+  #     DB_NAME: "defaultdb"
+  #     DB_USER: "avnadmin"
+  #     DB_PASSWORD: "AVNS_YvmZwdl9kb18WKUmnHK"
+  #     DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
+  #     DB_PORT: "12783"
+  #     DB_SCHEMA: "user_schema"
+  #   networks:
+  #     - shared_network   
   
   product_service:
     build:
       context: ./product_service
     ports:
-      - "8002:8000"
+      - "8002:8002"
     environment:
       DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
       DJANGO_DEBUG: "True"
@@ -32,13 +33,16 @@ services:
       DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
       DB_PORT: "12783"
       DB_SCHEMA: "product_schema"
-
+      AUTH_SERVICE_URL: "https://user-service-django-latest.onrender.com"
+    
+    networks:
+      - shared_network   
 
   order_service:
     build:
       context: ./order_service
     ports:
-      - "8003:8000"
+      - "8003:8003"
     environment:
       DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
       DJANGO_DEBUG: "True"
@@ -48,13 +52,15 @@ services:
       DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
       DB_PORT: "12783"
       DB_SCHEMA: "order_schema"
-
+      AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
+    networks:
+      - shared_network   
 
   payment_service:
     build:
       context: ./payment_service
     ports:
-      - "8004:8000"
+      - "8004:8004"
     environment:
       DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
       DJANGO_DEBUG: "True"
@@ -64,13 +70,15 @@ services:
       DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
       DB_PORT: "12783"
       DB_SCHEMA: "payment_schema"
-
+      AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
+    networks:
+      - shared_network   
 
   cart_service:
     build:
       context: ./cart_service
     ports:
-      - "8005:8000"
+      - "8005:8005"
     environment:
       DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
       DJANGO_DEBUG: "True"
@@ -80,13 +88,16 @@ services:
       DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
       DB_PORT: "12783"
       DB_SCHEMA: "cart_schema"
+      AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
+    networks:
+      - shared_network   
 
 
   notification_service:
     build:
       context: ./notification_service
     ports:
-      - "8006:8000"
+      - "8006:8006"
     environment:
       DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
       DJANGO_DEBUG: "True"
@@ -96,28 +107,11 @@ services:
       DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
       DB_PORT: "12783"
       DB_SCHEMA: "notification_schema"
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - "6379:6379"
+      AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
 
-  celery_worker:
-    build: .
-    container_name: celery_worker
-    command: celery -A product_service worker --loglevel=info
-    depends_on:
-      - redis
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
 
-  celery_beat:
-    build: .
-    container_name: celery_beat
-    command: celery -A product_service beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    depends_on:
-      - redis
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0     
+    networks:
+      - shared_network  
+networks:
+  shared_network:
+    external: true 

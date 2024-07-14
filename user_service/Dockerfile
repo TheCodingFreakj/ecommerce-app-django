@@ -16,4 +16,4 @@ RUN pip install -r requirements.txt
 COPY . /code/
 
 # Command to run the server
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "user_service.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8001", "user_service.wsgi:application"]

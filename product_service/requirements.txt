@@ -7,3 +7,7 @@ python-dotenv
 django_celery_beat
 celery 
 redis
+requests
+colorlog
+aiohttp
+asyncio

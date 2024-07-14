@@ -2,3 +2,7 @@
 python manage.py migrate users
 python manage.py makemigration users
 Using celery and redis to run the cron job 
+
+Using cron that picks up 10 records from products table which is unaudited-version-1 as status
+This cron will call a service which which logs any changes made to the product to product audit table 
+Use abstract classes and mixins and give the best design pattern to configure if not singleton

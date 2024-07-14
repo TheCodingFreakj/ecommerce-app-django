@@ -35,7 +35,7 @@ class Command(BaseCommand):
 
     def process_products(self):
         logger.info('Processing products...')
-        products = Product.objects.filter(status='unaudited-version-1', is_audited=False)[:10]
+        products = Product.objects.filter(status='unaudited-version-1', is_audited=False).order_by('-last_modified')[:10]
         for product in products:
             logger.info(f"Processing product: {product.id} - {product.name}")
             self.process_product(product)

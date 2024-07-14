@@ -11,5 +11,5 @@ class ProductsConfig(AppConfig):
         import logging
         logger = logging.getLogger(__name__)
         logger.info("YourAppConfig is ready.")
-        print("YourAppConfig is ready.")  # Debug statement
+        
 

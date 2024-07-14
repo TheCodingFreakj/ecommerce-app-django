@@ -4,6 +4,7 @@ services:
   user_service:
     build:
       context: .
+    container_name: user_service  
     ports:
       - "8001:8000"
       
@@ -16,3 +17,8 @@ services:
       DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
       DB_PORT: "12783"
       DB_SCHEMA: "user_schema"
+    networks:
+      - shared_network  
+networks:
+  shared_network:
+    external: true 

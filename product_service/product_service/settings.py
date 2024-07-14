@@ -27,12 +27,18 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
+EXTERNAL_AUTH_URL = f"{os.environ.get('AUTH_SERVICE_URL')}/user-info"
+# Ensure EXTERNAL_AUTH_URL is not None
+# Debugging logs
+print(f"Loaded env_path: {env_path}")
+print(f"Loaded EXTERNAL_AUTH_URL: {EXTERNAL_AUTH_URL}")
+if EXTERNAL_AUTH_URL is None:
+    raise ValueError("EXTERNAL_AUTH_URL environment variable not set")
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-secret-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -47,10 +53,46 @@ INSTALLED_APPS = [
     'products',
     'rest_framework',
     'rest_framework_simplejwt',
-    'django_celery_beat'
+    'django_celery_beat',
+   
     
 ]
+# Allow all hosts for development purposes (not recommended for production)
+ALLOWED_HOSTS = ['*', 'localhost','user-service-django-latest.onrender.com']
+ASGI_APPLICATION = 'products.asgi.application'
+from datetime import timedelta
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'JSON_ENCODER': None,
+    'JWK_URL': None,
+    'LEEWAY': 0,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+
+    'JTI_CLAIM': 'jti',
+
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -59,34 +101,61 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'products.middleware.AuthMiddleware'
 ]
 
 ROOT_URLCONF = 'product_service.urls'
+# settings.py
+
+# settings.py
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    'formatters': {
+        'colored': {
+            '()': 'colorlog.ColoredFormatter',
+            'format': '%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            'log_colors': {
+                'DEBUG': 'white',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'bold_red,underline',
+            },
+        },
+        'simple': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'colored',
+        },
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'error.log'),
+            'formatter': 'simple',
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': 'DEBUG',
             'propagate': True,
         },
-        'user_services': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+        'django.request': {
+            'handlers': ['console', 'file'],
+            'level': 'ERROR',
+            'propagate': False,
         },
     },
 }
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -172,7 +241,8 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
+    'products.backends.ExternalServiceBackend',
+    # 'django.contrib.auth.backends.ModelBackend',
 )
 
 # myproject/settings.py

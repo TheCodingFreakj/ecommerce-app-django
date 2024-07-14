@@ -1,0 +1,4 @@
+version: '3'
+networks:
+  my_shared_network:
+    driver: bridge

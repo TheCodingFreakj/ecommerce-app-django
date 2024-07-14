@@ -15,9 +15,10 @@ class Product(AuditLogMixin, models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='unaudited-version-1')
     last_modified = models.DateTimeField(auto_now=True)
     is_audited = models.BooleanField(default=False)
+    last_modified_by = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.name
+        return f"Product----> {self.name} is last modified by -----> {self.last_modified_by}"
     
 
 class ProductAuditLog(models.Model):
@@ -27,7 +28,7 @@ class ProductAuditLog(models.Model):
     ]
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    user = models.IntegerField()
+    user = models.IntegerField(null=True, blank=True)
     action = models.CharField(max_length=50, choices=ACTION_CHOICES)
     field_name = models.CharField(max_length=50)
     old_value = models.TextField(null=True, blank=True)

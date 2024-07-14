@@ -6,9 +6,9 @@ from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-import logging
 
+import logging
+from rest_framework_simplejwt.authentication import JWTAuthentication
 # Set up logging
 logger = logging.getLogger(__name__)
 class ProtectedView(APIView):
@@ -61,3 +61,18 @@ class LoginView(generics.GenericAPIView):
             logger.warning(f"LoginView: Failed login attempt for username {username}")
             return Response({"error": "Invalid Credentials"}, status=400)
 
+class UserInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        user = request.user
+        user_info = {
+            'userid': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            # Include any other user fields you want to return
+        }
+        return Response(user_info)
