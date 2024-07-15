@@ -30,13 +30,12 @@ class SetLastModifiedBy:
     def __init__(self, func):
         self.func = func
 
-    async def __call__(self, viewset_instance, request, *args, **kwargs):
+    def __call__(self, viewset_instance, request, *args, **kwargs):
         logger.info(f"Intercepting the request at the __call__----------------> {self}")
         logger.info(f"Intercepting the request at the viewset_instance----------------> {viewset_instance}")
         logger.info(f"Intercepting the request at the request----------------> {request}")
-        token = request.headers.get('Authorization')
-        logger.info(f"Authorization Information ------------------> {token}")
-        user_id = self.get_user_id_from_auth_service(token)
+        logger.info(f"Authorization Information ------------------> {request.user}")
+        user_id = request.user
         if user_id:
             request.data['last_modified_by'] = user_id
         else:
@@ -44,12 +43,3 @@ class SetLastModifiedBy:
         
         return self.func(viewset_instance, request, *args, **kwargs)
 
-    async def get_user_id_from_auth_service(self, token):
-        try:
-            response = requests.get(f"{os.environ.get('AUTH_SERVICE_URL')}/user-info", headers={'Authorization': f'Bearer {token}'})
-            if response.status_code == 200:
-                return response.json().get('userid')
-            else:
-                return None
-        except Exception as e:
-            return None

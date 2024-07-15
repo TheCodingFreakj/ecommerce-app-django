@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from .product_mixins import AuditLogMixin
 
+
+
 class Product(AuditLogMixin, models.Model):
     STATUS_CHOICES = [
         ('unaudited-version-1', 'Unaudited Version 1'),

@@ -33,7 +33,7 @@ services:
       DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
       DB_PORT: "12783"
       DB_SCHEMA: "product_schema"
-      AUTH_SERVICE_URL: "https://user-service-django-latest.onrender.com"
+      AUTH_SERVICE_URL: "https://auth-service-4r29.onrender.com/api/users"
     
     networks:
       - shared_network   

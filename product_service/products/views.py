@@ -1,73 +1,82 @@
 # views.py
+import asyncio
 from functools import wraps
 import logging
-import os
-from pathlib import Path
-import requests
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 
-from .middleware import AuthMiddleware
+from rest_framework import viewsets,status
+
+from .middleware import IsAuthenticatedCustom
+
+
+from rest_framework.permissions import AllowAny
+from .mixins import AuthMixin
+
+from rest_framework.response import Response
 from .middlewares import  SetLastModifiedBy
 from .models import Product
 from .serializers import ProductSerializer
-from django.views.decorators.http import require_http_methods
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.ERROR)
 
 
-async def set_last_modified_by(func):
+def set_last_modified_by(func):
     @wraps(func)
-    async def wrapper(viewset_instance, request, *args, **kwargs):
+    def wrapper(viewset_instance, request, *args, **kwargs):
         logger.info(f"Intercepting the request at the decorator----------------> {request}")
-        decorator_instance = await SetLastModifiedBy(func)
-        return await decorator_instance(viewset_instance, request, *args, **kwargs)
+        decorator_instance =  SetLastModifiedBy(func)
+        return  decorator_instance(viewset_instance, request, *args, **kwargs)
     return wrapper
 
+from rest_framework.permissions import BasePermission
 
-class ProductViewSet(viewsets.ModelViewSet):
+# AuthMixin
+class ProductViewSet(AuthMixin, viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes=[AuthMiddleware]
-    # def dispatch(self, request, *args, **kwargs):
-    #     # Apply custom middleware before handling the request
-    #     middleware = CustomMiddleware()
-    #     response = middleware.process_request(request)
-    #     if response:
-    #         return response
+    permission_classes = [IsAuthenticatedCustom] 
+  
 
-    #     try:
-    #         # Log the request details
-    #         print(f"Request method: {request.method}")
-    #         print(f"Request path: {request.path}")
-    #         print(f"Request headers: {request.headers}")
-
-    #         # Modify request data (e.g., add a custom attribute)
-    #         request.custom_attr = "Processed by CustomMiddleware"
-
-    #         # Call the superclass dispatch method to handle the request
-    #         response = super().dispatch(request, *args, **kwargs)
-
-    #         # Log the response details
-    #         print(f"Response status: {response.status_code}")
-    #         print(f"Response headers: {response.headers}")
-
-    #         # Modify the response before returning it
-    #         response['X-Custom-Header'] = 'Processed by CustomMiddleware'
-    #     except Exception as e:
-    #         # Handle exceptions and return a custom error response
-    #         print(f"Error occurred: {str(e)}")
-    #         response = Response({"detail": "An error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    #     # Apply custom middleware after handling the response
-    #     return middleware.process_response(request, response)
-    # @set_last_modified_by
-    async def create(self, request, *args, **kwargs):
+        
+    @set_last_modified_by
+    def create(self, request, *args, **kwargs):
         logger.info(f"Intercepting the request at the view----------------> {self}")
-        # Custom create logic
-        response =await super().create(request, *args, **kwargs)
-        return response
+
+          
+        logger.info(f"Creating a new product with data: {request.data}")
+        return super().create(request, *args, **kwargs)
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+        
+    #     # Custom logic before saving
+    #     self.perform_create(serializer)
+        
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    # def perform_create(self, serializer):
+    #     serializer.save()
+        
+    def list(self, request, *args, **kwargs):
+        # <products.views.ProductViewSet object at 0x7f0eada545e0>
+        logger.debug(f"Intercepting self-------------------> {self}")
+        logger.debug(f"Intercepting request-------------------> {request}")
+        logger.debug(f"Intercepting args-------------------> {args}")
+        logger.debug(f"Intercepting kwargs-------------------> {kwargs}")
+
+        return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        # <products.views.ProductViewSet object at 0x7f0eada545e0>
+        logger.debug(f"Intercepting self-------------------> {self}")
+        #<rest_framework.request.Request: GET '/api/products/1/'>
+        logger.debug(f"Intercepting request-------------------> {request}")
+        logger.debug(f"Intercepting args-------------------> {args}")
+        #Intercepting kwargs-------------------> {'pk': '1'}
+        logger.debug(f"Intercepting kwargs-------------------> {kwargs}")
+
+        return super().retrieve(request, *args, **kwargs)
+
     # @set_last_modified_by
     # def update(self, request, *args, **kwargs):
     #     # Custom update logic
@@ -76,4 +85,18 @@ class ProductViewSet(viewsets.ModelViewSet):
     # def destroy(self, request, *args, **kwargs):
     #     # Custom delete logic
     #     return super().destroy(request, *args, **kwargs)
+
+
+
+# add custom logic before and after the default behavior, you can do so
+    # def list(self, request, *args, **kwargs):
+    # # Custom logic before the default list method
+    # logger.debug("Custom logic before")
+
+    # response = super().list(request, *args, **kwargs)
+
+    # # Custom logic after the default list method
+    # logger.debug("Custom logic after")
+
+    # return response
 

@@ -27,7 +27,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
-EXTERNAL_AUTH_URL = f"{os.environ.get('AUTH_SERVICE_URL')}/user-info"
+EXTERNAL_AUTH_URL = f"{os.environ.get('AUTH_SERVICE_URL')}/userinfo/"
 # Ensure EXTERNAL_AUTH_URL is not None
 # Debugging logs
 print(f"Loaded env_path: {env_path}")
@@ -58,12 +58,12 @@ INSTALLED_APPS = [
     
 ]
 # Allow all hosts for development purposes (not recommended for production)
-ALLOWED_HOSTS = ['*', 'localhost','user-service-django-latest.onrender.com']
+ALLOWED_HOSTS = ['*', 'localhost','auth-service-4r29.onrender.com']
 ASGI_APPLICATION = 'products.asgi.application'
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -90,7 +90,7 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 MIDDLEWARE = [
@@ -101,8 +101,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'products.middleware.AuthMiddleware'
+    # 'products.mixins.ProcessUserMiddleware',
+   
+    
 ]
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+# ]
 
 ROOT_URLCONF = 'product_service.urls'
 # settings.py
@@ -112,49 +117,28 @@ ROOT_URLCONF = 'product_service.urls'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'colored': {
-            '()': 'colorlog.ColoredFormatter',
-            'format': '%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            'log_colors': {
-                'DEBUG': 'white',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'bold_red,underline',
-            },
-        },
-        'simple': {
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        },
-    },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'colored',
         },
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'error.log'),
-            'formatter': 'simple',
-        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
         },
-        'django.request': {
-            'handlers': ['console', 'file'],
-            'level': 'ERROR',
-            'propagate': False,
+        'your_app': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
         },
     },
 }
-
 
 TEMPLATES = [
     {
@@ -236,14 +220,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'products.mixins.CustomExternalServiceAuthentication',
     ),
 }
 
-AUTHENTICATION_BACKENDS = (
-    'products.backends.ExternalServiceBackend',
-    # 'django.contrib.auth.backends.ModelBackend',
-)
+# AUTHENTICATION_BACKENDS = (
+#     'products.backends.ExternalServiceBackend',
+#     # 'django.contrib.auth.backends.ModelBackend',
+# )
 
 # myproject/settings.py
 

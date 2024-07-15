@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework import status
 import logging
 from rest_framework_simplejwt.authentication import JWTAuthentication
 # Set up logging
@@ -61,18 +61,23 @@ class LoginView(generics.GenericAPIView):
             logger.warning(f"LoginView: Failed login attempt for username {username}")
             return Response({"error": "Invalid Credentials"}, status=400)
 
-class UserInfoView(APIView):
+class UserInfoView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):
-        user = request.user
-        user_info = {
-            'userid': user.id,
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            # Include any other user fields you want to return
-        }
-        return Response(user_info)
+        try:
+            user = request.user
+            user_info = {
+                'userid': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                # Include any other user fields you want to return
+            }
+            logger.info(f"User info retrieved successfully for user ID: {user.id}")
+            return Response(user_info, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error retrieving user info: {str(e)}")
+            return Response({'detail': 'An error occurred while retrieving user info.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
