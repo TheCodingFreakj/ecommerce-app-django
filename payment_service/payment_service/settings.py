@@ -22,13 +22,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-b6-bsh74e$01g%2-q%et&*o=0&8hsr%19#^l-sen-9#8v$74q8'
 import os
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-secret-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*', 'localhost','user-service-django-latest.onrender.com']
 
 
 # Application definition
@@ -87,6 +91,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT', '5432'),
+         'OPTIONS': {
+            'options': f'-c search_path="{os.environ.get("DB_SCHEMA")}"'
+        },
     }
 }
 
@@ -140,3 +147,6 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
+
+RAZORPAY_KEY_ID = 'rzp_test_nEnUNKr2hOkt0a'
+RAZORPAY_KEY_SECRET = 'D1007k6sTzFf6XuKR7GjlcRo'

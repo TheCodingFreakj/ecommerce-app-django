@@ -41,21 +41,9 @@ class ProductViewSet(AuthMixin, viewsets.ModelViewSet):
     @set_last_modified_by
     def create(self, request, *args, **kwargs):
         logger.info(f"Intercepting the request at the view----------------> {self}")
-
-          
         logger.info(f"Creating a new product with data: {request.data}")
         return super().create(request, *args, **kwargs)
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-        
-    #     # Custom logic before saving
-    #     self.perform_create(serializer)
-        
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    # def perform_create(self, serializer):
-    #     serializer.save()
         
     def list(self, request, *args, **kwargs):
         # <products.views.ProductViewSet object at 0x7f0eada545e0>
