@@ -23,7 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = 'django-insecure-b6-bsh74e$01g%2-q%et&*o=0&8hsr%19#^l-sen-9#8v$74q8'
 import os
 from dotenv import load_dotenv
+import logging
 
+logger = logging.getLogger(__name__)
 # Load environment variables from .env file
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
@@ -31,9 +33,11 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-secret-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = ['*', 'localhost','user-service-django-latest.onrender.com']
-
+# ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+# logger.debug("ALLOWED_HOSTS: %s", ALLOWED_HOSTS)
+# ALLOWED_HOSTS = ['payment_service', 'localhost', '127.0.0.1', '[::1]']
+ALLOWED_HOSTS = ['*', 'payment-service-ap4j.onrender.com','localhost','payment_service:8004','user-service-django-latest.onrender.com']
+USE_X_FORWARDED_HOST = True
 
 # Application definition
 
@@ -150,3 +154,29 @@ AUTHENTICATION_BACKENDS = (
 
 RAZORPAY_KEY_ID = 'rzp_test_nEnUNKr2hOkt0a'
 RAZORPAY_KEY_SECRET = 'D1007k6sTzFf6XuKR7GjlcRo'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'your_app': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

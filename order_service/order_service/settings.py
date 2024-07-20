@@ -23,7 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = 'django-insecure-g#xb$c^#ii7dg)0c%42z&8a&jz7f@qga-$=-#$zt++$h@vo6mq'
 import os
 from dotenv import load_dotenv
+import logging
 
+logger = logging.getLogger(__name__)
 # Load environment variables from .env file
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
@@ -31,8 +33,12 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-secret-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = ['*', 'localhost','user-service-django-latest.onrender.com']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+logger.debug("ALLOWED_HOSTS: %s", ALLOWED_HOSTS)
+# ALLOWED_HOSTS = ['payment_service', 'localhost', '127.0.0.1', '[::1]']
+# ALLOWED_HOSTS = ['*', 'localhost','payment_service:8004','user-service-django-latest.onrender.com']
+USE_X_FORWARDED_HOST = True
+# ALLOWED_HOSTS = ['*', 'localhost','user-service-django-latest.onrender.com']
 
 
 # Application definition
@@ -151,15 +157,22 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
+        'console': {
+            'class': 'logging.StreamHandler',
         },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'your_app': {
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
         },

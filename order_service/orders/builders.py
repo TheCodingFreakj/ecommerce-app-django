@@ -1,20 +1,27 @@
+import logging
+logger = logging.getLogger(__name__)
+
 class Order:
-    def __init__(self,total_amount,email, customer_info, items, shipping_address,  payment_info, order_status, created_at, updated_at):
+    def __init__(self,email, customer_info,items, total_amount, billing_address,  payment_info, order_status, created_at, updated_at):
+        logger.debug(f"Order Object set up before------> {customer_info}")
+        logger.debug(f"Order Object set up before------> {items}")
+        logger.debug(f"Order Object set up before------> {email}")
         self.email = email
         self.customer_info = customer_info
         self.items = items
         self.total_amount = total_amount
-        self.shipping_address = shipping_address
+        self.billing_address = billing_address
         self.payment_info = payment_info
         self.order_status = order_status
         self.created_at = created_at
         self.updated_at = updated_at
+        logger.debug(f"Order Object set up after------> {customer_info}")
 
    
 
 class OrderBuilder:
     def __init__(self):
- 
+        self.email = None
         self.customer_info = None
         self.items = []
         self.total_amount = None
@@ -24,6 +31,10 @@ class OrderBuilder:
         self.created_at = None
         self.updated_at = None
 
+
+    def set_email(self, email):
+        self.email = email
+        return self
 
     def set_customer_info(self, customer_info):
         self.customer_info = customer_info
@@ -56,19 +67,20 @@ class OrderBuilder:
     def set_updated_at(self, updated_at):
         self.updated_at = updated_at
         return self
-    def set_email(self, email):
-        self.email = email
-        return self
+    
 
     def build(self):
+        logger.debug(f"Order In build methd------> {self.email}")
+        logger.debug(f"Order In build methd------> {self.customer_info}")
+        logger.debug(f"Order In build methd------> {self.items}")
         return Order(
-            self.customer_info,
-            self.items,
-            self.email,
-            self.total_amount,
-            self.billing_address,
-            self.payment_info,
-            self.order_status,
-            self.created_at,
-            self.updated_at
+        self.email,
+        self.customer_info,
+        self.items,
+        self.total_amount,
+        self.billing_address,
+        self.payment_info,
+        self.order_status,
+        self.created_at,
+        self.updated_at,
         )

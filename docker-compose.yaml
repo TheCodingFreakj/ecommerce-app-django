@@ -53,6 +53,7 @@ services:
       DB_PORT: "12783"
       DB_SCHEMA: "order_schema"
       AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
+      ALLOWED_HOSTS: "payment_service,localhost,127.0.0.1,[::1]"
     networks:
       - shared_network   
 
@@ -71,6 +72,7 @@ services:
       DB_PORT: "12783"
       DB_SCHEMA: "payment_schema"
       AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
+      ALLOWED_HOSTS: "payment_service,localhost,127.0.0.1,[::1]"
     networks:
       - shared_network   
 

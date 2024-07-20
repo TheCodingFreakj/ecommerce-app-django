@@ -10,10 +10,10 @@ from abc import ABC, abstractmethod
 
 class PaymentStrategy(ABC):
     @abstractmethod
-    def initiate_payment(self, order):
+    def initiate_strategy_payment(self):
         pass
 class StripePaymentStrategy(PaymentStrategy):
-    def initiate_payment(self, order):
+    def initiate_strategy_payment(self, order):
         try:
             response = requests.post('https://stripe.example.com/pay', json={
                 'order_id': order.id,
@@ -40,7 +40,7 @@ class StripePaymentStrategy(PaymentStrategy):
             raise
 
 class PayPalPaymentStrategy(PaymentStrategy):
-    def initiate_payment(self, order):
+    def initiate_strategy_payment(self, order):
         try:
             response = requests.post('https://paypal.example.com/pay', json={
                 'order_id': order.id,
@@ -68,30 +68,42 @@ class PayPalPaymentStrategy(PaymentStrategy):
 
 
 class RazorPayStrategy(PaymentStrategy):
-    def initiate_payment(self, order):
+    def __init__(self,order_id, user,total_amount):
+        self.order_id = order_id
+        self.user = user
+        self.total_amount = total_amount
+# settings.RAZORPAY_KEY_ID
+    def initiate_strategy_payment(self):
         try:
+            logger.debug(f"Initiating RazorPay payment for order {self.order_id}, user {self.user}, amount {self.total_amount}")
 
             client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
             razorpay_order = client.order.create(
-                {"amount": int(order.total_amount) * 100, "currency": "INR", "payment_capture": "1"}
+                {"amount": int(self.total_amount) * 100, "currency": "INR", "payment_capture": "1"}
             )
-           
-           
-            razorpay_order.raise_for_status()
-            payment_data = razorpay_order.json()
+
+            logger.debug(f"RazorPay order created: {razorpay_order}")
 
             payment = Payment.objects.create(
-                order=order,
-                amount=order.total_amount,
-                status=payment_data['status'],
+                order=self.order_id,
+                amount=self.total_amount,
+                status=razorpay_order['status'],
                 transaction_id=razorpay_order.get('id')
             )
-            return payment
+
+            logger.debug(f"Payment object created in the database: {payment}")
+
+            return {
+                'order_id': self.order_id,
+                'user': self.user,
+                'total_amount': self.total_amount,
+                'payment_method': 'razorpay'
+            }
         except requests.RequestException as e:
-            logger.error(f"PayPal payment initiation failed for order {order.id}: {e}")
+            logger.error(f"RazorPay payment initiation failed for order {self.order_id}: {e}")
             Payment.objects.create(
-                order=order,
-                amount=order.total_amount,
+                order=self.order_id,
+                amount=self.total_amount,
                 status='failure'
             )
-            raise        
+            raise
