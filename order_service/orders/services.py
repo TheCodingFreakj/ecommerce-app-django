@@ -1,7 +1,11 @@
 # orders/services.py
+import datetime
 from .builders import OrderBuilder
-import logging
-logger = logging.getLogger(__name__)
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+from .logsProducer import send_log
+from .loggin_config import logger
+from rest_framework.response import Response
 import requests
 class OrderService:
     @staticmethod
@@ -33,23 +37,73 @@ class OrderService:
 
 
 
-# https://payment-service-ap4j.onrender.com/api/payments/
 class PaymentService:
+    session = None
+    
     @staticmethod
-    def initiate_payment(order, payment_type, customer_info,total_amount):
+    def get_session():
+        if PaymentService.session is None:
+            session = requests.Session()
+            retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+            adapter = HTTPAdapter(max_retries=retries)
+            session.mount('https://', adapter)
+            PaymentService.session = session
+        return PaymentService.session
+    @staticmethod
+    def initiate_payment(order, payment_type, customer_info,total_amount,transaction_id,ip_address):
+        session = PaymentService.get_session()
         try:
             logger.debug(f"Calling the payment service handler here with amount {total_amount}")
-            response = requests.post('https://payment-service-ap4j.onrender.com/api/payments/', json={
+            response = session.post('https://payment-service-ap4j.onrender.com/api/payments/', json={
                 'order_id': order,
                 'total_amount': total_amount,
                 'user_id': customer_info, 
-                'payment_type': payment_type
+                'payment_type': payment_type,
+                'transaction_id':transaction_id,
+                'ip_address':ip_address
             })
+            logger.debug(f"Getting the payment data back from payment service-----> {response}")
             response.raise_for_status()
             payment_data = response.json()
-            logger.debug(f"Getting the payment data back from payment service-----> {payment_data}")
-            return payment_data
+            logger.debug(f"Getting the payment data back from payment service after converting to json-----> {payment_data}")
+            transaction_data = {
+                    'transaction_id':transaction_id,
+                    'user_id': customer_info,
+                    'payment_method': "POST",
+                    'status': 'processing',
+                    'initiated_at': datetime.datetime.now().isoformat(),
+                    'location': ip_address
+            }
+                # Log the transaction initiation
+            send_log({'type': 'transaction', 'data': transaction_data})
+            
+           
+            return  payment_data
+        except requests.HTTPError as e:
+            logger.error(f"Payment initiation failed for order {order}: {e}, Response content: {response.content}")
+            transaction_data = {
+                    'transaction_id':transaction_id,
+                    'user_id': customer_info,
+                    'payment_method': "POST",
+                    'status': 'failed',
+                    'failed_reason': str(e),
+                    'initiated_at': datetime.datetime.now().isoformat(),
+                    'location': ip_address
+            }
+                # Log the transaction initiation
+            send_log({'type': 'transaction', 'data': transaction_data})
+            return {"error": str(e), "status_code": response.status_code, "content": response.content.decode('utf-8')}
         except requests.RequestException as e:
             logger.error(f"Payment initiation failed for order {order}: {e}")
-            raise
-
+            transaction_data = {
+                    'transaction_id':transaction_id,
+                    'user_id': customer_info,
+                    'payment_method': "POST",
+                    'status': 'failed',
+                    'failed_reason': str(e),
+                    'initiated_at': datetime.datetime.now().isoformat(),
+                    'location': ip_address
+            }
+                # Log the transaction initiation
+            send_log({'type': 'transaction', 'data': transaction_data})
+            return {"error": str(e)}

@@ -22,13 +22,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-zn-8pee#s67x)m*o_&a88(&2joqvh+9b$z)2d+j%mu$rxztk4c'
 import os
+from dotenv import load_dotenv
+import logging
 
+logger = logging.getLogger(__name__)
+# Load environment variables from .env file
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-secret-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+# logger.debug("ALLOWED_HOSTS: %s", ALLOWED_HOSTS)
+# ALLOWED_HOSTS = ['payment_service', 'localhost', '127.0.0.1', '[::1]']
+ALLOWED_HOSTS = ['*', 'payment-service-ap4j.onrender.com','localhost','payment_service:8004','user-service-django-latest.onrender.com']
+USE_X_FORWARDED_HOST = True
 
 
 # Application definition
@@ -87,6 +96,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT', '5432'),
+        'OPTIONS': {
+            'options': f'-c search_path="{os.environ.get("DB_SCHEMA")}"'
+        },
     }
 }
 
@@ -140,3 +152,29 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'root': {
+#         'handlers': ['console'],
+#         'level': 'DEBUG',
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#         'your_app': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }

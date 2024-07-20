@@ -4,3 +4,5 @@ gunicorn
 psycopg2-binary
 djangorestframework-simplejwt
 python-dotenv
+pika
+requests

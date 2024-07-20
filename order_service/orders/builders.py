@@ -1,5 +1,5 @@
-import logging
-logger = logging.getLogger(__name__)
+# import logging
+from .loggin_config import logger
 
 class Order:
     def __init__(self,email, customer_info,items, total_amount, billing_address,  payment_info, order_status, created_at, updated_at):
