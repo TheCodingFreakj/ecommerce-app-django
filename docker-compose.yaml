@@ -54,45 +54,47 @@ services:
       DB_SCHEMA: "order_schema"
       AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
       ALLOWED_HOSTS: "payment_service,localhost,127.0.0.1,[::1]"
+ 
     networks:
       - shared_network   
 
-  payment_service:
-    build:
-      context: ./payment_service
-    ports:
-      - "8004:8004"
-    environment:
-      DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
-      DJANGO_DEBUG: "True"
-      DB_NAME: "defaultdb"
-      DB_USER: "avnadmin"
-      DB_PASSWORD: "AVNS_YvmZwdl9kb18WKUmnHK"
-      DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
-      DB_PORT: "12783"
-      DB_SCHEMA: "payment_schema"
-      AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
-      ALLOWED_HOSTS: "payment_service,localhost,127.0.0.1,[::1]"
-    networks:
-      - shared_network   
+  # payment_service:
+  #   build:
+  #     context: ./payment_service
+  #   ports:
+  #     - "8004:8004"
+  #   environment:
+  #     DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
+  #     DJANGO_DEBUG: "True"
+  #     DB_NAME: "defaultdb"
+  #     DB_USER: "avnadmin"
+  #     DB_PASSWORD: "AVNS_YvmZwdl9kb18WKUmnHK"
+  #     DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
+  #     DB_PORT: "12783"
+  #     DB_SCHEMA: "payment_schema"
+  #     AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
+  #     ALLOWED_HOSTS: "payment_service,localhost,127.0.0.1,[::1]"
+  
+  #   networks:
+  #     - shared_network   
 
-  cart_service:
-    build:
-      context: ./cart_service
-    ports:
-      - "8005:8005"
-    environment:
-      DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
-      DJANGO_DEBUG: "True"
-      DB_NAME: "defaultdb"
-      DB_USER: "avnadmin"
-      DB_PASSWORD: "AVNS_YvmZwdl9kb18WKUmnHK"
-      DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
-      DB_PORT: "12783"
-      DB_SCHEMA: "cart_schema"
-      AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
-    networks:
-      - shared_network   
+  # cart_service:
+  #   build:
+  #     context: ./cart_service
+  #   ports:
+  #     - "8005:8005"
+  #   environment:
+  #     DJANGO_SECRET_KEY: "django-insecure-l7x#+v738270%6i&r3*eekfjtqi)ny8oe(m3oziu5rlk3=y^z("
+  #     DJANGO_DEBUG: "True"
+  #     DB_NAME: "defaultdb"
+  #     DB_USER: "avnadmin"
+  #     DB_PASSWORD: "AVNS_YvmZwdl9kb18WKUmnHK"
+  #     DB_HOST: "pg-1ea7758e-pallavidapriya75-97f0.c.aivencloud.com" 
+  #     DB_PORT: "12783"
+  #     DB_SCHEMA: "cart_schema"
+  #     AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
+  #   networks:
+  #     - shared_network   
 
 
   notification_service:
@@ -110,10 +112,32 @@ services:
       DB_PORT: "12783"
       DB_SCHEMA: "notification_schema"
       AUTH_SERVICE_URL: "http://e_commerce_app_django-user_service-1:8001/api/users"
-
+ 
 
     networks:
       - shared_network  
+  # zookeeper:
+  #   image: zookeeper:3.6
+  #   ports:
+  #     - "2181:2181"
+  #   networks:
+  #     - shared_network    
+
+  # kafka:
+  #   image: confluentinc/cp-kafka:latest
+  #   ports:
+  #     - "9092:9092"
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+  #     KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #   depends_on:
+  #     - zookeeper 
+
+  #   networks:
+  #     - shared_network     
 networks:
   shared_network:
     external: true 

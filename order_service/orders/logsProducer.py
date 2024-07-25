@@ -21,6 +21,9 @@ def send_log(log_data):
         logger.error(f"Authentication error while sending log message: {e}")
     except Exception as e:
         logger.error(f"Error sending log message: {e}")
+import requests
+from .loggin_config import logger
+
 def get_user_location(ip_address):
     try:
         response = requests.get(f'http://ip-api.com/json/{ip_address}')
@@ -28,4 +31,6 @@ def get_user_location(ip_address):
         return f"{data['city']}, {data['country']}"
     except Exception as e:
         logger.error(f"Error fetching user location: {e}")
-        return "Unknown"         
+        return "Unknown"
+
+        

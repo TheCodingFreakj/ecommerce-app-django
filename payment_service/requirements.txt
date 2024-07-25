@@ -8,3 +8,5 @@ tenacity
 razorpay
 requests
 pika
+kafka-python
+line_profiler

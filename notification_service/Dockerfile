@@ -15,5 +15,6 @@ RUN pip install -r requirements.txt
 # Copy project
 COPY . /code/
 
+
 # Command to run the server
 CMD ["gunicorn", "--bind", "0.0.0.0:8006", "notification_service.wsgi:application"]

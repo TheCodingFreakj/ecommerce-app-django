@@ -3,6 +3,8 @@ import datetime
 import razorpay
 import requests
 import logging
+
+from .kafka_producer import KafkaProducerPool
 from .logsProducer import send_log, get_user_location
 from .models import Payment
 from django.conf import settings
@@ -69,7 +71,7 @@ class PayPalPaymentStrategy(PaymentStrategy):
 
 
 class RazorPayStrategy(PaymentStrategy):
-    def __init__(self,order_id, user,total_amount, transaction_id, ip_address):
+    def __init__(self,order_id,user,total_amount, transaction_id, ip_address):
         self.order_id = order_id
         self.user = user
         self.total_amount = total_amount
@@ -77,6 +79,7 @@ class RazorPayStrategy(PaymentStrategy):
         self.transaction_id = transaction_id
 # settings.RAZORPAY_KEY_ID
     def initiate_strategy_payment(self):
+        producer = KafkaProducerPool(pool_size=5)
         try:
             logger.debug(f"Initiating RazorPay payment for order {self.order_id}, user {self.user}, amount {self.total_amount}")
 
@@ -104,7 +107,8 @@ class RazorPayStrategy(PaymentStrategy):
                     'location': self.ip_address
                 }
                 # Log the transaction initiation
-            send_log({'type': 'transaction', 'data': transaction_data})
+            producer.send_message(settings.KAFKA_TOPIC, {'type': 'transaction', 'data': transaction_data})         
+            #send_log({'type': 'transaction', 'data': transaction_data})
             return {
                 'order_id': self.order_id,
                 'user': self.user,
@@ -128,5 +132,6 @@ class RazorPayStrategy(PaymentStrategy):
                     'location': self.ip_address
                 }
                 # Log the transaction initiation
-            send_log({'type': 'transaction', 'data': transaction_data})
+            producer.send_message(settings.KAFKA_TOPIC, {'type': 'transaction', 'data': transaction_data})    
+            #send_log({'type': 'transaction', 'data': transaction_data})
             raise

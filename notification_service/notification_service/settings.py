@@ -152,6 +152,13 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
+KAFKA_BROKER_URLS = 'kafka-195f06a3-pallavidapriya75-97f0.d.aivencloud.com:12785'  # Example: 'your-service-name.aivencloud.com:12345'
+KAFKA_USERNAME = 'avnadmin'
+KAFKA_PASSWORD = 'AVNS_Vp_Bedp2jJjsYGcKT5x'
+KAFKA_TOPIC = 'Logs-Aggregate'
+KAFKA_CA_CERT = '/code/certs/ca.pem'
+KAFKA_CLIENT_CERT = '/code/certs/service.cert'
+KAFKA_CLIENT_KEY = '/code/certs/service.key'
 
 # LOGGING = {
 #     'version': 1,

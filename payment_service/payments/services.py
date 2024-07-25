@@ -1,7 +1,10 @@
 # payments/services.py
 import datetime
 import logging
+from django.conf import settings
 from tenacity import retry, stop_after_attempt, wait_exponential
+
+from .kafka_producer import KafkaProducerPool
 from .utils import CircuitBreaker, CircuitBreakerError
 from .strategies import PaymentStrategy
 from django.http import JsonResponse
@@ -22,7 +25,8 @@ class PaymentService:
         }
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def initiate_payment(self,transaction_id,user,ip_address):
+    def initiate_payment(self, transaction_id,user,ip_address):
+        producer = KafkaProducerPool(pool_size=5)
         try:
             if (self.strategy.__class__.__name__ == None):
                 raise Exception("Issue is there")
@@ -46,7 +50,8 @@ class PaymentService:
                     'location': ip_address
                 }
                 # Log the transaction initiation
-            send_log({'type': 'transaction', 'data': transaction_data})
+            producer.send_message(settings.KAFKA_TOPIC, {'type': 'transaction', 'data': transaction_data})         
+            #send_log({'type': 'transaction', 'data': transaction_data})
             error_data = {
             'error': str(e),
             'status': 'error'

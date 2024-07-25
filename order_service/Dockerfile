@@ -16,4 +16,4 @@ RUN pip install -r requirements.txt
 COPY . /code/
 
 # Command to run the server
-CMD ["gunicorn", "--bind", "0.0.0.0:8003", "order_service.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8003", "--timeout", "120", "order_service.wsgi:application"]

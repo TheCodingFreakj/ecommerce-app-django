@@ -6,3 +6,6 @@ djangorestframework-simplejwt
 python-dotenv
 requests
 pika
+kafka-python
+line_profiler
+httpx
